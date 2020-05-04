@@ -1,7 +1,10 @@
 package com.byted.camp.todolist;
 
 import android.app.Activity;
+import android.content.ContentValues;
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
@@ -15,11 +18,13 @@ import android.view.MenuItem;
 import android.view.View;
 
 import com.byted.camp.todolist.beans.Note;
+import com.byted.camp.todolist.db.TodoDbHelper;
 import com.byted.camp.todolist.operation.activity.DatabaseActivity;
 import com.byted.camp.todolist.operation.activity.DebugActivity;
 import com.byted.camp.todolist.operation.activity.SettingActivity;
 import com.byted.camp.todolist.ui.NoteListAdapter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
@@ -108,16 +113,50 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private List<Note> loadNotesFromDatabase() {
+
         // TODO 从数据库中查询数据，并转换成 JavaBeans
         return null;
     }
 
     private void deleteNote(Note note) {
         // TODO 删除数据
+        TodoDbHelper dbHelper = new TodoDbHelper(this);
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss");
+        String getdate = simpleDateFormat.format(note.getDate());
+
+        String selection = NoteEntry.COLUMN_NAME_Date + " LIKE ?";
+        String[] selectionArgs = {getdate};
+        int deletedRows = db.delete(NoteEntry.TABLE_NAME, selection, selectionArgs);
+
+
     }
 
     private void updateNode(Note note) {
-        // 更新数据
+        // TODO:更新数据
+        TodoDbHelper dbHelper1 = new TodoDbHelper(this);
+        SQLiteDatabase db = dbHelper1.getWritableDatabase();
+
+
+        ContentValues values = new ContentValues();
+        values.put(NoteEntry.COLUMN_NAME_State,"DONE");
+        values.put(NoteEntry.COLUM_NAME_Priority,0);
+
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss");
+        String getdate = simpleDateFormat.format(note.getDate());
+
+        String selection = NoteEntry.COLUMN_NAME_Date + " LIKE ?";
+        String[] selectionArgs = {getdate};
+
+        int count = db.update(
+                NoteEntry.TABLE_NAME,
+                values,
+                selection,
+                selectionArgs);
+
+
     }
 
 }
+
